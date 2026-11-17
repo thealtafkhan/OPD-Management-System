@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 const getBaseUrl = () => {
-  const url = import.meta.env.VITE_API_URL;
-  if (!url) return '/api';
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return '/api';
+  }
+  const url = import.meta.env.VITE_API_URL || 'https://opd-backend-09yq.onrender.com';
   const clean = url.trim().replace(/\/+$/, '');
   if (clean.startsWith('http://') || clean.startsWith('https://')) {
     return `${clean}/api`;
