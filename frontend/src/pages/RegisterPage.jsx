@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, UserCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, UserCheck, AlertCircle, CheckCircle2, RefreshCw, LogIn, UserPlus } from 'lucide-react';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
@@ -35,11 +35,15 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const res = await api.post('/auth/register', formData);
+      const payload = {
+        ...formData,
+        username: formData.email || formData.mobile || formData.fullName.toLowerCase().replace(/\s+/g, '')
+      };
+      const res = await api.post('/auth/register', payload);
       if (res.data && res.data.success) {
         setRegisteredPid(res.data.data.patientId);
         // Automatically login
-        await login(formData.email, formData.password);
+        await login(formData.email || payload.username, formData.password);
       } else {
         setError(res.data.message || 'Registration failed');
       }
@@ -52,8 +56,8 @@ export default function RegisterPage() {
 
   if (registeredPid) {
     return (
-      <div className="max-w-md mx-auto my-12 bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-4">
-        <div className="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
+      <div className="max-w-md mx-auto my-12 bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-4 auth-card-transition">
+        <div className="w-14 h-14 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-sm">
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h2 className="text-xl font-black text-slate-800">Registration Successful!</h2>
@@ -61,7 +65,7 @@ export default function RegisterPage() {
           Your free lifetime OPD Patient Identity has been created.
         </p>
 
-        <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 my-4">
+        <div className="bg-emerald-50 border border-emerald-300 rounded-xl p-4 my-4 shadow-inner">
           <span className="text-xs text-emerald-800 font-semibold block">YOUR PERSISTENT PATIENT ID</span>
           <span className="text-2xl font-black text-emerald-950 font-mono tracking-wider">{registeredPid}</span>
         </div>
@@ -72,30 +76,69 @@ export default function RegisterPage() {
 
         <button
           onClick={() => navigate('/patient')}
-          className="w-full py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition"
+          className="w-full py-3 bg-emerald-800 hover:bg-emerald-700 active:scale-[0.98] text-white rounded-xl text-xs font-bold transition shadow-md hover:shadow-lg flex items-center justify-center gap-1.5"
         >
-          Go to Patient Portal
+          <span>Go to Patient Portal</span>
         </button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 space-y-6">
+    <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 auth-card-transition">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
+        <div className="relative inline-flex items-center justify-center mb-3 group cursor-pointer">
+          {/* Dynamic pulsing aura glow */}
+          <div className="absolute -inset-2 rounded-full bg-gradient-to-tr from-emerald-500 via-amber-400 to-teal-400 opacity-50 blur-md logo-glow-aura group-hover:opacity-100 group-hover:scale-120 transition-all duration-700"></div>
+          
+          {/* Rotating decorative accent ring */}
+          <div className="absolute -inset-1 rounded-full border border-dashed border-emerald-600/50 logo-ring-rotate pointer-events-none"></div>
+
+          {/* Logo badge with shadow, ring, and interactive hover */}
+          <div className="relative p-1.5 bg-white rounded-full shadow-xl ring-2 ring-emerald-600/30 group-hover:ring-emerald-500 group-hover:rotate-6 transition-all duration-500 transform group-hover:scale-105 flex items-center justify-center">
+            <img 
+              src="/amu_logo.png" 
+              alt="AMU Crest" 
+              className="h-20 w-20 object-contain rounded-full transition-transform duration-500 group-hover:scale-110" 
+            />
+          </div>
+        </div>
+        <h2 className="text-2xl font-black text-slate-800 tracking-tight">AMU OPD Registration</h2>
+        <p className="text-xs text-slate-500 mt-1">Free Lifetime Digital Patient Identity (PID)</p>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 space-y-6 transition-all duration-300 hover:shadow-2xl">
         
+        {/* Smooth Toggle Tabs between Login and Register */}
+        <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <Link
+            to="/login"
+            className="flex-1 py-2 rounded-lg text-slate-600 hover:text-emerald-800 hover:bg-white/60 flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            Sign In
+          </Link>
+          <button
+            type="button"
+            className="flex-1 py-2 rounded-lg bg-emerald-800 text-white shadow-sm flex items-center justify-center gap-1.5 transition-all duration-200 cursor-default"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            Register (Free PID)
+          </button>
+        </div>
+
         <div className="border-b border-slate-200 pb-4">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold mb-2">
             <ShieldCheck className="w-3.5 h-3.5" /> 100% Free Registration
           </div>
-          <h2 className="text-2xl font-black text-slate-800">New Patient Registration</h2>
+          <h2 className="text-xl font-black text-slate-800">New Patient Registration</h2>
           <p className="text-xs text-slate-500 mt-1">
             Assigns your permanent <strong>Patient ID (PID-xxxx)</strong>. Fees are charged only upon OPD booking.
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs flex items-center gap-2">
+          <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-xs flex items-center gap-2 animate-in fade-in">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -114,10 +157,10 @@ export default function RegisterPage() {
               ].map((item) => (
                 <label 
                   key={item.type}
-                  className={`p-3 rounded-lg border cursor-pointer transition text-left block ${
+                  className={`p-3.5 rounded-xl border cursor-pointer transition-all duration-200 hover:-translate-y-0.5 active:scale-95 text-left block shadow-sm ${
                     formData.affiliationType === item.type 
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900 ring-2 ring-emerald-500' 
-                      : 'border-slate-200 hover:bg-slate-100 text-slate-700'
+                      ? 'border-emerald-600 bg-emerald-50/90 text-emerald-900 ring-2 ring-emerald-500 shadow-emerald-100 shadow-md' 
+                      : 'border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-700'
                   }`}
                 >
                   <input
@@ -319,9 +362,16 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition text-xs flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-emerald-800 hover:bg-emerald-700 active:scale-[0.98] text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? 'Assigning Patient ID...' : 'Complete Free Registration & Get PID'}
+            {loading ? (
+              <>
+                <RefreshCw className="w-4 h-4 animate-spin text-emerald-200" />
+                <span>Assigning Patient ID & Logging In...</span>
+              </>
+            ) : (
+              <span>Complete Free Registration & Get PID</span>
+            )}
           </button>
         </form>
 

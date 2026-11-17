@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
       'ramesh.sharma@gmail.com': 'pat123',
       'zahmed@amu.ac.in': 'doc123',
       'fzahra@amu.ac.in': 'doc123',
-      'lab@amu.ac.in': 'lab123',
+
       'reception@amu.ac.in': 'rec123',
       'admin@amu.ac.in': 'admin123'
     };

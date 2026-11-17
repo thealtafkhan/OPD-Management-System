@@ -44,6 +44,9 @@ public class Appointment {
     private LocalDateTime paymentTimestamp;
 
     private String status = "SCHEDULED";
+    private Boolean slipIssued = false;
+    private LocalDateTime slipIssuedAt;
+    private String verifiedBy;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public Appointment() {}
@@ -72,6 +75,12 @@ public class Appointment {
     public void setPaymentTimestamp(LocalDateTime paymentTimestamp) { this.paymentTimestamp = paymentTimestamp; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+    public Boolean getSlipIssued() { return slipIssued != null && slipIssued; }
+    public void setSlipIssued(Boolean slipIssued) { this.slipIssued = slipIssued; }
+    public LocalDateTime getSlipIssuedAt() { return slipIssuedAt; }
+    public void setSlipIssuedAt(LocalDateTime slipIssuedAt) { this.slipIssuedAt = slipIssuedAt; }
+    public String getVerifiedBy() { return verifiedBy; }
+    public void setVerifiedBy(String verifiedBy) { this.verifiedBy = verifiedBy; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

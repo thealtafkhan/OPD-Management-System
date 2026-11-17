@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../api/client';
 import { 
   Building2, Users, Stethoscope, Calendar, Activity, 
-  Clock, ShieldCheck, ArrowRight, HeartPulse, Sparkles, CheckCircle2 
+  Clock, ShieldCheck, ArrowRight, HeartPulse, Sparkles, CheckCircle2, UserPlus 
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -39,9 +39,28 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="max-w-2xl text-center lg:text-left space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-700/80 text-emerald-200 text-xs font-semibold tracking-wide border border-emerald-500/40">
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                Next-Gen AMU Healthcare System
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-2">
+                <div className="relative inline-flex items-center justify-center group cursor-pointer">
+                  {/* Dynamic pulsing aura glow */}
+                  <div className="absolute -inset-1.5 rounded-full bg-gradient-to-tr from-amber-400 via-emerald-400 to-amber-300 opacity-60 blur-md logo-glow-aura group-hover:opacity-100 group-hover:scale-120 transition-all duration-700"></div>
+                  
+                  {/* Rotating decorative accent ring */}
+                  <div className="absolute -inset-1 rounded-full border border-dashed border-amber-300/80 logo-ring-rotate pointer-events-none"></div>
+
+                  {/* Logo badge with tactile hover */}
+                  <div className="relative w-16 h-16 rounded-full bg-white p-1 shadow-2xl ring-2 ring-amber-400 group-hover:ring-amber-300 group-hover:rotate-12 transition-all duration-500 transform group-hover:scale-110 flex items-center justify-center overflow-hidden">
+                    <img 
+                      src="/amu_logo.png" 
+                      alt="AMU Logo" 
+                      className="w-full h-full object-contain rounded-full transition-transform duration-500 group-hover:scale-110" 
+                    />
+                  </div>
+                </div>
+
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-700/90 text-emerald-200 text-xs font-semibold tracking-wide border border-emerald-500/40 shadow-inner">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  Next-Gen AMU Healthcare System • JNMCH
+                </div>
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
                 Aligarh Muslim University <br />
@@ -55,21 +74,15 @@ export default function HomePage() {
               <div className="pt-2 flex flex-wrap justify-center lg:justify-start gap-3">
                 <Link 
                   to="/patient" 
-                  className="px-5 py-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold text-sm shadow-lg hover:shadow-xl transition flex items-center gap-2"
+                  className="px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold text-sm shadow-lg hover:shadow-xl transition-all duration-200 active:scale-95 hover:scale-[1.03] flex items-center gap-2"
                 >
                   <Calendar className="w-4 h-4" /> Book OPD Appointment
                 </Link>
                 <Link 
-                  to="/lobby" 
-                  className="px-5 py-3 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-sm backdrop-blur-sm transition flex items-center gap-2"
-                >
-                  <Activity className="w-4 h-4 text-amber-400" /> Live Waiting Room Display
-                </Link>
-                <Link 
                   to="/register" 
-                  className="px-4 py-3 rounded-lg bg-emerald-700/90 hover:bg-emerald-600 text-emerald-50 text-sm font-medium transition"
+                  className="px-4.5 py-3 rounded-xl bg-emerald-700/90 hover:bg-emerald-600 text-emerald-50 text-sm font-semibold transition-all duration-200 active:scale-95 hover:scale-[1.03] shadow-md flex items-center gap-2"
                 >
-                  Free Registration (PID)
+                  <UserPlus className="w-4 h-4 text-emerald-200" /> Free Registration (PID)
                 </Link>
               </div>
             </div>
@@ -136,10 +149,9 @@ export default function HomePage() {
             <div className="w-10 h-10 rounded-lg bg-sky-100 text-sky-800 flex items-center justify-center mb-4">
               <Stethoscope className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-slate-800 text-base mb-1">Longitudinal EHR & Diagnostics</h3>
+            <h3 className="font-bold text-slate-800 text-base mb-1">Longitudinal EHR</h3>
             <p className="text-slate-600 text-xs leading-relaxed">
-              Unified electronic medical records, digital prescriptions with printable AMU format, and 
-              integrated lab pipelines for Blood, X-Ray, and Ultrasound with tamper-proof finalization.
+              Unified electronic medical records and digital prescriptions with printable AMU format.
             </p>
           </div>
         </div>
@@ -152,8 +164,8 @@ export default function HomePage() {
             <h2 className="text-xl font-bold text-slate-800">Active OPD Departments & Clinical Faculty</h2>
             <p className="text-xs text-slate-500">Live roster of consulting specialists at J.N. Medical College</p>
           </div>
-          <Link to="/lobby" className="text-emerald-700 hover:text-emerald-800 text-xs font-semibold flex items-center gap-1">
-            View Live Room Queues <ArrowRight className="w-3.5 h-3.5" />
+          <Link to="/patient" className="text-emerald-700 hover:text-emerald-800 text-xs font-semibold flex items-center gap-1">
+            Book Appointment <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 

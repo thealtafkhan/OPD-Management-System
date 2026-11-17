@@ -68,15 +68,25 @@ public class AuthService {
 
     @Transactional
     public AuthResponse registerPatient(RegisterPatientRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username is already taken");
+        String username = request.getUsername();
+        if (username == null || username.trim().isEmpty()) {
+            username = (request.getEmail() != null && !request.getEmail().trim().isEmpty()) 
+                    ? request.getEmail().trim() 
+                    : request.getMobile();
         }
-        if (request.getEmail() != null && !request.getEmail().isEmpty() && userRepository.existsByEmail(request.getEmail())) {
+        if (username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("Username or Email is required for registration");
+        }
+
+        if (userRepository.existsByUsername(username)) {
+            throw new RuntimeException("Username / Email is already taken");
+        }
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty() && userRepository.existsByEmail(request.getEmail().trim())) {
             throw new RuntimeException("Email is already registered");
         }
 
         User user = new User(
-                request.getUsername(),
+                username,
                 passwordEncoder.encode(request.getPassword()),
                 request.getFullName(),
                 request.getEmail(),

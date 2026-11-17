@@ -1,0 +1,35 @@
+services:
+  # Backend Web Service (Spring Boot)
+  - type: web
+    name: opd-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: opd-db
+          property: connectionString
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: PORT
+        value: 8080
+
+  # Frontend Web Service (Vite React)
+  - type: web
+    name: opd-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: opd-db
+    databaseName: opd_db
+    user: postgres
+    plan: free

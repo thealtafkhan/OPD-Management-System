@@ -32,3 +32,8 @@ test_pw.pdf
 .settings/
 .DS_Store
 Thumbs.db
+
+# Temporary & Scratch files
+scratch/
+~$*
+*.bak

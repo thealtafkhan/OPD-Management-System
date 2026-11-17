@@ -6,6 +6,59 @@
   }
 }
 
+@keyframes authFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.auth-card-transition {
+  animation: authFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.btn-interactive {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-interactive:hover {
+  transform: translateY(-1px);
+}
+.btn-interactive:active {
+  transform: scale(0.97);
+}
+
+@keyframes logoAuraPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.85;
+  }
+}
+
+@keyframes logoRingRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.logo-glow-aura {
+  animation: logoAuraPulse 3.5s ease-in-out infinite;
+}
+
+.logo-ring-rotate {
+  animation: logoRingRotate 18s linear infinite;
+}
+
 @media print {
   body * {
     visibility: hidden;

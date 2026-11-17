@@ -57,12 +57,7 @@ public class DataInitializerService implements CommandLineRunner {
         User receptionist = new User("receptionist", passwordEncoder.encode("rec123"), "Farhan Akhtar (Reception)", "reception@amu.ac.in", "9876543211", Role.RECEPTIONIST);
         userRepository.save(receptionist);
 
-        // 3. Diagnostic Reporters
-        User reporterLab = new User("reporter_lab", passwordEncoder.encode("lab123"), "Dr. Asma Parveen (Pathology)", "lab@amu.ac.in", "9876543212", Role.DIAGNOSTIC_REPORTER);
-        userRepository.save(reporterLab);
-
-        User reporterRad = new User("reporter_rad", passwordEncoder.encode("rad123"), "Dr. Tariq Mansoor (Radiology)", "rad@amu.ac.in", "9876543213", Role.DIAGNOSTIC_REPORTER);
-        userRepository.save(reporterRad);
+        
 
         // 4. OPD Departments
         Department depMed = departmentRepository.save(new Department("General Medicine", "Primary outpatient adult care and diagnostic medicine", "Ground Floor, Wing A", "Room 101 - 105"));
@@ -181,11 +176,14 @@ public class DataInitializerService implements CommandLineRunner {
         apt1.setDoctor(doc1);
         apt1.setDepartment(depMed);
         apt1.setAppointmentDate(today);
-        apt1.setTimeSlot("10:00 AM - 10:15 AM");
+        apt1.setTimeSlot("10:00 AM - 10:10 AM");
         apt1.setFeeAmount(new BigDecimal("50.00"));
         apt1.setPaymentState(PaymentState.SUCCESSFUL);
         apt1.setTransactionId("TXN-UPI-9901");
         apt1.setPaymentTimestamp(LocalDateTime.now().minusHours(1));
+        apt1.setSlipIssued(true);
+        apt1.setVerifiedBy("receptionist");
+        apt1.setSlipIssuedAt(LocalDateTime.now().minusMinutes(50));
         appointmentRepository.save(apt1);
 
         OpdToken tok1 = new OpdToken();
@@ -208,11 +206,12 @@ public class DataInitializerService implements CommandLineRunner {
         apt2.setDoctor(doc1);
         apt2.setDepartment(depMed);
         apt2.setAppointmentDate(today);
-        apt2.setTimeSlot("10:15 AM - 10:30 AM");
+        apt2.setTimeSlot("10:10 AM - 10:20 AM");
         apt2.setFeeAmount(new BigDecimal("50.00"));
         apt2.setPaymentState(PaymentState.SUCCESSFUL);
         apt2.setTransactionId("TXN-CARD-8802");
         apt2.setPaymentTimestamp(LocalDateTime.now().minusMinutes(45));
+        apt2.setSlipIssued(false);
         appointmentRepository.save(apt2);
 
         OpdToken tok2 = new OpdToken();

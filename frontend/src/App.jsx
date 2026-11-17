@@ -7,10 +7,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import PatientDashboard from './pages/PatientDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
-import DiagnosticPortal from './pages/DiagnosticPortal';
+
 import ReceptionistPortal from './pages/ReceptionistPortal';
 import AdminDashboard from './pages/AdminDashboard';
-import PublicLobbyBoard from './pages/PublicLobbyBoard';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -50,10 +49,17 @@ function MainLayout({ children }) {
       </main>
       <footer className="bg-emerald-950 text-emerald-200 text-xs py-8 border-t border-emerald-800 no-print">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
-          <div className="flex items-center gap-3">
-            <img src="/amu_logo.png" alt="AMU Logo" className="w-10 h-10 bg-white rounded-full p-0.5" />
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute -inset-1 rounded-full bg-emerald-500 opacity-40 blur-xs logo-glow-aura group-hover:opacity-90 transition-all duration-300"></div>
+              <img 
+                src="/amu_logo.png" 
+                alt="AMU Logo" 
+                className="relative w-11 h-11 bg-white rounded-full p-0.5 shadow-md ring-1 ring-emerald-400/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 object-contain" 
+              />
+            </div>
             <div>
-              <div className="font-bold text-white text-sm">Aligarh Muslim University (AMU)</div>
+              <div className="font-bold text-white text-sm group-hover:text-amber-300 transition-colors">Aligarh Muslim University (AMU)</div>
               <div className="text-[11px] text-emerald-400">Jawaharlal Nehru Medical College & Hospital — OPD System</div>
             </div>
           </div>
@@ -71,9 +77,6 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public Full-screen TV Lobby Board */}
-          <Route path="/lobby" element={<PublicLobbyBoard />} />
-
           {/* Standard Portal Pages wrapped in MainLayout */}
           <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
           <Route path="/login" element={<MainLayout><LoginPage /></MainLayout>} />
@@ -102,16 +105,9 @@ export default function App() {
             } 
           />
 
-          <Route 
-            path="/diagnostic" 
-            element={
-              <MainLayout>
-                <ProtectedRoute allowedRoles={['DIAGNOSTIC_REPORTER']}>
-                  <DiagnosticPortal />
-                </ProtectedRoute>
-              </MainLayout>
-            } 
-          />
+          
+
+
 
           <Route 
             path="/receptionist" 

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import PrescriptionModal from '../components/PrescriptionModal';
+import OpdConsultationSlipModal from '../components/OpdConsultationSlipModal';
 import { 
   User, Calendar, Clock, CreditCard, Shield, Baby, 
-  FileText, Activity, AlertCircle, CheckCircle2, RefreshCw, Printer, Plus, AlertTriangle 
+  FileText, Activity, AlertCircle, CheckCircle2, RefreshCw, Printer, Plus, AlertTriangle, ShieldCheck 
 } from 'lucide-react';
+import { OPD_10_MIN_SLOTS, getDoctor10MinSlots } from '../utils/timeSlots';
 
 export default function PatientDashboard() {
   const { user } = useAuth();
@@ -20,6 +22,7 @@ export default function PatientDashboard() {
   const [activeTab, setActiveTab] = useState('appointments'); // appointments, book, pediatric, ehr
   const [loading, setLoading] = useState(true);
   const [selectedPrescription, setSelectedPrescription] = useState(null);
+  const [selectedSlipAppt, setSelectedSlipAppt] = useState(null);
 
   // Booking Form State
   const [bookingForm, setBookingForm] = useState({
@@ -27,7 +30,7 @@ export default function PatientDashboard() {
     departmentId: '',
     doctorId: '',
     appointmentDate: new Date().toISOString().split('T')[0],
-    timeSlot: '09:00 AM - 10:00 AM',
+    timeSlot: '09:00 AM - 09:10 AM',
   });
   const [bookingFee, setBookingFee] = useState(50);
   const [pendingAppointment, setPendingAppointment] = useState(null); // For payment modal
@@ -45,7 +48,7 @@ export default function PatientDashboard() {
     departmentId: '',
     doctorId: '',
     appointmentDate: new Date().toISOString().split('T')[0],
-    timeSlot: '09:00 AM - 10:00 AM',
+    timeSlot: '09:00 AM - 09:10 AM',
   });
   const [pediatricMsg, setPediatricMsg] = useState('');
 
@@ -201,6 +204,13 @@ export default function PatientDashboard() {
   const todayStr = new Date().toISOString().split('T')[0];
   const isAffiliationExpired = profile?.affiliationExpiryDate && profile?.affiliationExpiryDate < todayStr;
 
+  // 10-Minute consultation slots dynamically computed for selected doctors
+  const selectedDoctor = doctors.find(d => d.id === parseInt(bookingForm.doctorId));
+  const availableBookingSlots = getDoctor10MinSlots(selectedDoctor?.availableTimeSlot);
+
+  const selectedPediatricDoc = doctors.find(d => d.id === parseInt(pediatricForm.doctorId));
+  const availablePediatricSlots = getDoctor10MinSlots(selectedPediatricDoc?.availableTimeSlot);
+
   return (
     <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-6">
       
@@ -322,6 +332,20 @@ export default function PatientDashboard() {
             </button>
           </div>
 
+          {/* Mandatory Hospital Reception Protocol Notice */}
+          <div className="p-4 bg-gradient-to-r from-emerald-950 to-slate-900 border border-emerald-800 text-white rounded-2xl shadow-md space-y-2">
+            <div className="flex items-center gap-2 text-amber-300 font-bold text-xs sm:text-sm">
+              <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+              <span>Mandatory Protocol: Collect Hard-Copy Prescription Slip Before Doctor Consultation</span>
+            </div>
+            <p className="text-[11px] text-emerald-100 leading-relaxed">
+              <strong>Hospital Rule:</strong> After booking your appointment, please proceed to the <strong>OPD Reception Counter (Counters 1-4)</strong>. 
+              The receptionist will verify your booking using your <strong>Patient ID ({profile?.patientId})</strong> and hand you your official <strong>Printed Hard Copy Prescription Slip</strong>. 
+              You must carry this sheet into the consulting room for the doctor to write their clinical examination and prescriptions, which will be needed to purchase medicines at the hospital pharmacy. 
+              <em>Note: If you ever misplace the physical copy, your full medical history and digital prescriptions remain permanently safe and viewable in your Digital EHR below.</em>
+            </p>
+          </div>
+
           {appointments.length === 0 ? (
             <div className="bg-white p-8 rounded-xl border border-slate-200 text-center text-slate-500 text-xs">
               No appointments booked yet. Click "Book OPD Consultation" to schedule your visit.
@@ -332,11 +356,12 @@ export default function PatientDashboard() {
                 const isPaid = appt.paymentState === 'SUCCESSFUL';
                 const isPending = appt.paymentState === 'PENDING';
                 const isFailed = appt.paymentState === 'FAILED';
+                const isSlipIssued = appt.slipIssued;
 
                 return (
                   <div 
                     key={appt.id}
-                    className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3"
+                    className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-3 transition-all hover:shadow-md"
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -367,7 +392,7 @@ export default function PatientDashboard() {
 
                     <div className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg flex justify-between">
                       <div>Date: <span className="font-semibold text-slate-800">{appt.appointmentDate}</span></div>
-                      <div>Slot: <span className="font-semibold text-slate-800">{appt.timeSlot}</span></div>
+                      <div>Slot: <span className="font-semibold text-emerald-900 font-mono font-bold">{appt.timeSlot}</span></div>
                     </div>
 
                     {/* Pending Payment Notice & Retry Button */}
@@ -386,18 +411,52 @@ export default function PatientDashboard() {
                       </div>
                     )}
 
-                    {/* Paid Token Details */}
+                    {/* Paid & Prescription Verification Status */}
                     {isPaid && (
-                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs flex justify-between items-center">
-                        <div>
-                          <span className="text-[10px] text-emerald-700 font-bold uppercase block">CONFIRMED OPD TOKEN</span>
-                          <span className="text-base font-black text-emerald-950 font-mono">
-                            {appt.paymentState === 'SUCCESSFUL' ? 'TOKEN ISSUED' : 'WAITING'}
-                          </span>
-                        </div>
-                        <span className="text-[11px] bg-emerald-600 text-white font-bold px-2.5 py-1 rounded-md">
-                          Room {appt.doctor?.roomNumber}
-                        </span>
+                      <div className="space-y-2 pt-1">
+                        {isSlipIssued ? (
+                          <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl text-xs space-y-1.5">
+                            <div className="flex justify-between items-center">
+                              <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0" />
+                                Verified & Hard Copy Slip Issued
+                              </span>
+                              <span className="text-[10px] font-mono text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded font-bold">
+                                Room {appt.doctor?.roomNumber}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-600">
+                              Physical consultation prescription slip collected from Reception desk. Proceed to <strong>Room {appt.doctor?.roomNumber}</strong> during your slot.
+                            </p>
+                            <button
+                              onClick={() => setSelectedSlipAppt(appt)}
+                              className="w-full mt-1 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition flex items-center justify-center gap-1.5 active:scale-95 shadow-sm"
+                            >
+                              <Printer className="w-3.5 h-3.5" /> View / Reprint Prescription Slip
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs space-y-1.5">
+                            <div className="flex justify-between items-center">
+                              <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                                Action Required: Collect Hard Copy Slip
+                              </span>
+                              <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                                Reception Counter 1-4
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-amber-900">
+                              Please show Patient ID <strong>{profile?.patientId}</strong> at the OPD Reception desk to verify your booking and receive your printed physical prescription sheet before entering Room {appt.doctor?.roomNumber}.
+                            </p>
+                            <button
+                              onClick={() => setSelectedSlipAppt(appt)}
+                              className="w-full mt-1 py-1.5 bg-white border border-amber-400 hover:bg-amber-100/80 text-amber-950 font-bold rounded-lg text-xs transition flex items-center justify-center gap-1.5 active:scale-95"
+                            >
+                              <Printer className="w-3.5 h-3.5" /> Preview OPD Consultation Slip
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -446,7 +505,16 @@ export default function PatientDashboard() {
               <select
                 required
                 value={bookingForm.doctorId}
-                onChange={(e) => setBookingForm({ ...bookingForm, doctorId: e.target.value })}
+                onChange={(e) => {
+                  const docId = e.target.value;
+                  const doc = doctors.find(d => d.id === parseInt(docId));
+                  const slots = getDoctor10MinSlots(doc?.availableTimeSlot);
+                  setBookingForm({ 
+                    ...bookingForm, 
+                    doctorId: docId,
+                    timeSlot: slots[0] || '09:00 AM - 09:10 AM'
+                  });
+                }}
                 className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="">-- Choose Doctor --</option>
@@ -474,18 +542,21 @@ export default function PatientDashboard() {
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Time Slot *</label>
+                <label className="font-semibold text-slate-700 block mb-1">Time Slot (10-Min Consultation) *</label>
                 <select
                   value={bookingForm.timeSlot}
                   onChange={(e) => setBookingForm({ ...bookingForm, timeSlot: e.target.value })}
-                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  className="w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 font-medium"
                 >
-                  <option value="08:30 AM - 09:30 AM">08:30 AM - 09:30 AM</option>
-                  <option value="09:30 AM - 10:30 AM">09:30 AM - 10:30 AM</option>
-                  <option value="10:30 AM - 11:30 AM">10:30 AM - 11:30 AM</option>
-                  <option value="11:30 AM - 12:30 PM">11:30 AM - 12:30 PM</option>
-                  <option value="12:30 PM - 01:30 PM">12:30 PM - 01:30 PM</option>
+                  {availableBookingSlots.map((slot) => (
+                    <option key={slot} value={slot}>
+                      {slot} (10 min)
+                    </option>
+                  ))}
                 </select>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Standard 10-minute consultation window per token.
+                </p>
               </div>
             </div>
 
@@ -604,29 +675,32 @@ export default function PatientDashboard() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-semibold text-slate-700 block mb-1">Pediatric Doctor *</label>
-                  <select
-                    required
-                    value={pediatricForm.doctorId}
-                    onChange={(e) => {
-                      const doc = doctors.find(d => d.id === parseInt(e.target.value));
-                      setPediatricForm({ 
-                        ...pediatricForm, 
-                        doctorId: e.target.value,
-                        departmentId: doc?.department?.id || ''
-                      });
-                    }}
-                    className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                  >
-                    <option value="">-- Choose Pediatrician --</option>
-                    {doctors.map(d => (
-                      <option key={d.id} value={d.id}>Dr. {d.user?.fullName} ({d.department?.name})</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">Pediatric Doctor *</label>
+                <select
+                  required
+                  value={pediatricForm.doctorId}
+                  onChange={(e) => {
+                    const docId = e.target.value;
+                    const doc = doctors.find(d => d.id === parseInt(docId));
+                    const slots = getDoctor10MinSlots(doc?.availableTimeSlot);
+                    setPediatricForm({ 
+                      ...pediatricForm, 
+                      doctorId: docId,
+                      departmentId: doc?.department?.id || '',
+                      timeSlot: slots[0] || '09:00 AM - 09:10 AM'
+                    });
+                  }}
+                  className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="">-- Choose Pediatrician --</option>
+                  {doctors.map(d => (
+                    <option key={d.id} value={d.id}>Dr. {d.user?.fullName} ({d.department?.name})</option>
+                  ))}
+                </select>
+              </div>
 
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-semibold text-slate-700 block mb-1">Appointment Date *</label>
                   <input
@@ -637,6 +711,19 @@ export default function PatientDashboard() {
                     onChange={(e) => setPediatricForm({ ...pediatricForm, appointmentDate: e.target.value })}
                     className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                   />
+                </div>
+
+                <div>
+                  <label className="font-semibold text-slate-700 block mb-1">Time Slot (10 Mins) *</label>
+                  <select
+                    value={pediatricForm.timeSlot}
+                    onChange={(e) => setPediatricForm({ ...pediatricForm, timeSlot: e.target.value })}
+                    className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 font-medium"
+                  >
+                    {availablePediatricSlots.map((slot) => (
+                      <option key={slot} value={slot}>{slot}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -847,6 +934,15 @@ export default function PatientDashboard() {
         <PrescriptionModal
           consultation={selectedPrescription}
           onClose={() => setSelectedPrescription(null)}
+        />
+      )}
+
+      {/* OPD Consultation Prescription Slip Modal */}
+      {selectedSlipAppt && (
+        <OpdConsultationSlipModal
+          appointment={selectedSlipAppt}
+          token={{ tokenNumber: 'Token Confirmed' }}
+          onClose={() => setSelectedSlipAppt(null)}
         />
       )}
 

@@ -5,5 +5,5 @@ public enum Role {
     RECEPTIONIST,
     DOCTOR,
     PATIENT,
-    DIAGNOSTIC_REPORTER
+
 }
