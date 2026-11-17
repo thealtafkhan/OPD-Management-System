@@ -7,10 +7,26 @@ services:
     dockerContext: ./backend
     plan: free
     envVars:
-      - key: SPRING_DATASOURCE_URL
+      - key: DB_HOST
         fromDatabase:
           name: opd-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: opd-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: opd-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: opd-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: opd-db
+          property: password
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: PORT
