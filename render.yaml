@@ -27,9 +27,15 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: opd-backend
+          property: host
 
 databases:
   - name: opd-db
     databaseName: opd_db
-    user: postgres
+    user: opd_user
     plan: free
