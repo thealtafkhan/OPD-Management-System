@@ -20,10 +20,10 @@ public class DatabaseConfig {
     @Value("${spring.datasource.url:}")
     private String configuredUrl;
 
-    @Value("${spring.datasource.username:postgres}")
+    @Value("${spring.datasource.username:neondb_owner}")
     private String defaultUsername;
 
-    @Value("${spring.datasource.password:Altaf@64420}")
+    @Value("${spring.datasource.password:npg_FZHcu2GRLxm8}")
     private String defaultPassword;
 
     @Bean
@@ -56,7 +56,8 @@ public class DatabaseConfig {
                 String path = uri.getPath();
                 String dbName = (path != null && path.length() > 1) ? path.substring(1) : "opd_db";
 
-                String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + dbName;
+                String query = uri.getQuery();
+                String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/" + dbName + (query != null && !query.isBlank() ? "?" + query : "?sslmode=require");
                 config.setJdbcUrl(jdbcUrl);
 
                 if (uri.getUserInfo() != null) {
@@ -74,7 +75,7 @@ public class DatabaseConfig {
                 config.setPassword(defaultPassword);
             }
         } else {
-            String jdbcUrl = (rawUrl != null && !rawUrl.isBlank()) ? rawUrl : "jdbc:postgresql://localhost:5432/opd_db";
+            String jdbcUrl = (rawUrl != null && !rawUrl.isBlank()) ? rawUrl : "jdbc:postgresql://ep-old-cell-bd42emwk-pooler.c-8.us-east-2.aws.neon.tech/neondb?sslmode=require";
             config.setJdbcUrl(jdbcUrl);
             config.setUsername(defaultUsername);
             config.setPassword(defaultPassword);

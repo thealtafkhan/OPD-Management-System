@@ -8,9 +8,11 @@ services:
     plan: free
     envVars:
       - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: opd-db
-          property: connectionString
+        value: jdbc:postgresql://ep-old-cell-bd42emwk-pooler.c-8.us-east-2.aws.neon.tech/neondb?sslmode=require
+      - key: SPRING_DATASOURCE_USERNAME
+        value: neondb_owner
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: npg_FZHcu2GRLxm8
       - key: SPRING_JPA_HIBERNATE_DDL_AUTO
         value: update
       - key: PORT
@@ -33,9 +35,3 @@ services:
           type: web
           name: opd-backend
           property: host
-
-databases:
-  - name: opd-db
-    databaseName: opd_db
-    user: opd_user
-    plan: free
