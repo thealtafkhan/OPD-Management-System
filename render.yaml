@@ -31,7 +31,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: opd-backend
-          property: host
+        value: https://opd-backend-09yq.onrender.com
